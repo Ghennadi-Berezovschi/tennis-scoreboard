@@ -1,0 +1,72 @@
+#  Tennis Scoreboard
+
+A Java web application for creating, managing, and tracking tennis matches.
+
+##  Features
+
+-  Start a new match between two players
+-  Automatically track points, games, and sets
+-  Determine winner and end a match manually
+-  Store finished matches in PostgreSQL
+-  Display finished matches in a paginated table
+-  Filter matches by player name
+
+##  Tech Stack
+
+- **Java 21**
+- **Jakarta Servlets + JSP (JSTL)**
+- **Hibernate ORM (6.4+)**
+- **PostgreSQL** with **HikariCP**
+- **Maven** (WAR packaging)
+- **Tomcat 10+**
+- **JUnit 5** + **Mockito** for unit testing
+
+##  How to Run
+
+1. Make sure PostgreSQL is running on:jdbc:postgresql://localhost:5433/tennis_db
+(you can change credentials in `HibernateUtil.java`)
+
+2. Run this project in IntelliJ IDEA with Tomcat 10+
+
+3. Or package it manually:mvn clean package
+
+4. Deploy the generated `tennis-scoreboard.war` to your Tomcat `webapps` directory.
+
+##  Endpoints
+
+- `GET /new-match` – Show form to create new match
+- `POST /new-match` – Submit players and start match
+- `GET /match?id=...` – Live score of a match
+- `POST /score?id=...` – Update score
+- `POST /end-match` – Mark match as finished
+- `GET /matches?page=&filter_by_player_name=` – View finished matches
+
+##  Test Coverage
+
+- Unit tests for score logic (`MatchScoreCalculationServiceTest`)
+- Validation logic tested in `ValidationUtilsTest`
+
+##  Project Structure
+
+src/
+└── main/
+├── java/
+│ └── com.example.tennisscoreboard/
+│ ├── servlet/
+│ ├── model/
+│ ├── dao/
+│ ├── service/
+│ ├── util/
+│ └── dto/
+├── resources/
+└── webapp/
+├── WEB-INF/
+│ ├── matches.jsp
+│ └── match.jsp
+└── new-match.jsp
+
+
+---
+
+> Created as part of a practice project.
+

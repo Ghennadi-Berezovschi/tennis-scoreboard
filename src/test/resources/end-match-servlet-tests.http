@@ -1,0 +1,63 @@
+### Test InvalidInputException in EndMatchServlet (UUID missing)
+# Description:
+# UUID parameter is completely missing
+# Expected:
+# - HTTP 400
+# - JSON: { "status": 400, "message": "UUID is missing or blank." }
+POST http://localhost:8080/tennis_scoreboard_war_exploded/end-match
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+###
+
+### Test InvalidInputException in EndMatchServlet (UUID is blank)
+# Description:
+# UUID parameter is present but empty
+# Expected:
+# - HTTP 400
+# - JSON: { "status": 400, "message": "UUID is missing or blank." }
+POST http://localhost:8080/tennis_scoreboard_war_exploded/end-match
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+uuid=
+
+###
+
+### Test NotFoundException in EndMatchServlet (valid UUID format but not found)
+# Description:
+# UUID is in valid format but no match exists with it
+# Expected:
+# - HTTP 404
+# - JSON: { "status": 404, "message": "Match not found with UUID: 00000000-0000-0000-0000-000000000000" }
+POST http://localhost:8080/tennis_scoreboard_war_exploded/end-match
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+uuid=00000000-0000-0000-0000-000000000000
+
+###
+
+### Test InvalidInputException in EndMatchServlet (match is not finished yet)
+# Description:
+# Match exists but is not marked as finished — should not be saved
+# Expected:
+# - HTTP 400
+# - JSON: { "status": 400, "message": "Match is not finished yet." }
+POST http://localhost:8080/tennis_scoreboard_war_exploded/end-match
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+uuid=<insert UUID of an ongoing (unfinished) match>
+
+###
+
+### Test success case for EndMatchServlet
+# Description:
+# Match exists and is finished — should be saved successfully and removed
+# Expected:
+# - HTTP 302 (redirect to "/")
+POST http://localhost:8080/tennis_scoreboard_war_exploded/end-match
+Content-Type: application/x-www-form-urlencoded
+
+uuid=<insert UUID of a finished match>

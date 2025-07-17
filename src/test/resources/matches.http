@@ -1,0 +1,37 @@
+### 1. Get first page of all matches (no filter)
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?page=1
+Accept: text/html
+
+###
+
+### 2. Invalid page number (not a number)
+# Expected: HTTP 400, "Page parameter must be a valid number."
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?page=abc
+Accept: text/html
+
+###
+
+### 3. Negative page number
+# Expected: HTTP 400, "Page number must be at least 1."
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?page=-5
+Accept: text/html
+
+###
+
+### 4. Valid filter (player name = Roger)
+# Expected: filtered matches with player "Roger"
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?filter_by_player_name=Roger
+Accept: text/html
+
+###
+
+### 5. Filter with no results
+# Expected: HTML response with "No matches found."
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?filter_by_player_name=xyz123
+Accept: text/html
+
+###
+
+### 6. Filter + specific page
+GET http://localhost:8080/tennis_scoreboard_war_exploded/matches?page=2&filter_by_player_name=Roger
+Accept: text/html
