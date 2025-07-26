@@ -2,7 +2,7 @@ package com.example.tennisscoreboard.servlet;
 
 import com.example.tennisscoreboard.model.MatchScore;
 import com.example.tennisscoreboard.service.OngoingMatchesService;
-import com.example.tennisscoreboard.util.ValidationUtils;
+import com.example.tennisscoreboard.util.ValidationUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,8 +21,8 @@ public class MatchScoreServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        UUID matchUuid = ValidationUtils.validateAndParseUUID(request.getParameter("uuid"));
-        MatchScore matchScore = ongoingMatchesService.getMatchScoreOrThrow(matchUuid);
+        UUID matchUuid = ValidationUtil.validateAndParseUUID(request.getParameter("uuid"));
+        MatchScore matchScore = ongoingMatchesService.getMatchScore(matchUuid);
 
 
         request.setAttribute("matchUuid", matchUuid.toString());

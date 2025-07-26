@@ -1,9 +1,13 @@
 package com.example.tennisscoreboard.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "matches")
+@Getter
+@Setter
 public class Match {
 
     @Id
@@ -32,47 +36,4 @@ public class Match {
     }
 
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public void setPlayer1(Player player1) {
-        this.player1 = player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
-    public void setPlayer2(Player player2) {
-        this.player2 = player2;
-    }
-
-    public Player getWinner() {
-        return winner;
-    }
-
-    public void setWinner(Player winner) {
-        this.winner = winner;
-    }
-
-
-
-    @Override
-    public String toString() {
-        return "Match{" +
-                "id=" + id +
-                ", player1=" + (player1 != null ? player1.getName() : null) +
-                ", player2=" + (player2 != null ? player2.getName() : null) +
-                ", winner=" + (winner != null ? winner.getName() : null) +
-                '}';
-    }
 }

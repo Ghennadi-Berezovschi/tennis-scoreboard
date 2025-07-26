@@ -102,69 +102,66 @@
 
 <a class="button" href="${pageContext.request.contextPath}/new-match">➤ Start New Match</a>
 
-<form method="get" action="${pageContext.request.contextPath}/matches">
+<form method="get" action="${pageContext.request.contextPath}/matches-page">
     <label>
         Filter by player name:
-        <input type="text" name="filter_by_player_name" value="${param.filter_by_player_name}">
+        <input type="text" name="filter_by_player_name" value="${filter_by_player_name}">
     </label>
     <button type="submit">Search</button>
 </form>
 
-<!-- If no matches -->
 <c:if test="${empty matches}">
     <p>No matches found.</p>
 </c:if>
 
-<!-- If where are matches -->
 <c:if test="${not empty matches}">
     <table>
         <tr>
-            <th>ID</th>
+            <th>#</th>
             <th>Player 1</th>
             <th>Player 2</th>
             <th>Winner</th>
         </tr>
 
-        <c:forEach var="match" items="${matches}">
+        <c:forEach var="match" items="${matches}" varStatus="status">
             <tr>
-                <td>${match.id}</td>
-                <td>${match.player1.name}</td>
-                <td>${match.player2.name}</td>
-                <td>${match.winner.name}</td>
+                <td>${status.index + 1}</td>
+                <td>${match.playerFirstName}</td>
+                <td>${match.playerSecondName}</td>
+                <td>${match.playerWinner}</td>
             </tr>
         </c:forEach>
     </table>
 
     <div class="pagination">
         <c:set var="filterQuery" value="" />
-        <c:if test="${not empty param.filter_by_player_name}">
-            <c:set var="filterQuery" value="&amp;filter_by_player_name=${fn:escapeXml(param.filter_by_player_name)}" />
+        <c:if test="${not empty filter_by_player_name}">
+            <c:set var="filterQuery" value="&amp;filter_by_player_name=${fn:escapeXml(filter_by_player_name)}" />
         </c:if>
 
         <c:choose>
             <c:when test="${currentPage > 1}">
-                <a href="${pageContext.request.contextPath}/matches?page=${currentPage - 1}${filterQuery}">← Prev</a>
+                <a href="${pageContext.request.contextPath}/matches-page?page=${currentPage - 1}${filterQuery}">← Prev</a>
             </c:when>
             <c:otherwise>
                 <span class="disabled">← Prev</span>
             </c:otherwise>
         </c:choose>
 
-        <!-- Page numbers -->
         <c:forEach begin="1" end="${totalPages}" var="i">
             <c:choose>
                 <c:when test="${i == currentPage}">
                     <span class="disabled">${i}</span>
                 </c:when>
                 <c:otherwise>
-                    <a href="${pageContext.request.contextPath}/matches?page=${i}${filterQuery}">${i}</a>
+                    <a href="${pageContext.request.contextPath}/matches-page?page=${i}${filterQuery}">${i}</a>
                 </c:otherwise>
             </c:choose>
         </c:forEach>
 
         <c:choose>
             <c:when test="${currentPage < totalPages}">
-                <a href="${pageContext.request.contextPath}/matches?page=${currentPage + 1}${filterQuery}">Next →</a>
+                <a href="${pageContext.request.contextPath}/matches-page?page=${currentPage + 1}${filterQuery}">Next →</a>
             </c:when>
             <c:otherwise>
                 <span class="disabled">Next →</span>

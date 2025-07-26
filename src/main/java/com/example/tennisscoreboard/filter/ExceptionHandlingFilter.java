@@ -2,6 +2,8 @@ package com.example.tennisscoreboard.filter;
 
 import com.example.tennisscoreboard.dto.ErrorResponseDto;
 import com.example.tennisscoreboard.exception.InvalidInputException;
+import com.example.tennisscoreboard.exception.InvalidPageParameterException;
+import com.example.tennisscoreboard.exception.MatchStateException;
 import com.example.tennisscoreboard.exception.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +20,7 @@ public class ExceptionHandlingFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException {
 
         HttpServletResponse res = (HttpServletResponse) response;
 
@@ -28,7 +30,13 @@ public class ExceptionHandlingFilter implements Filter {
             writeErrorResponse(res, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
         } catch (NotFoundException e) {
             writeErrorResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
-        } catch (Exception e) {
+        } catch (MatchStateException e) {
+            writeErrorResponse(res, HttpServletResponse.SC_CONFLICT, e.getMessage());
+        } catch (InvalidPageParameterException e) {
+            writeErrorResponse(res, HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+
+        catch (Exception e) {
             writeErrorResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server error: " + e.getMessage());
         }
     }

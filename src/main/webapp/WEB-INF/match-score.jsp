@@ -64,16 +64,16 @@
         <th>Sets</th>
     </tr>
     <tr>
-        <td><%= match.getPlayer1Name() %></td>
-        <td><%= calc.getPointsDisplay(match.getPlayer1Points(), match.getPlayer2Points()) %></td>
-        <td><%= match.getPlayer1Games() %></td>
-        <td><%= match.getPlayer1Sets() %></td>
+        <td><%= match.getFirstPlayerName() %></td>
+        <td><%= calc.getPointsDisplay(match.getFirstPlayerPoints(), match.getSecondPlayerPoints()) %></td>
+        <td><%= match.getFirstPlayerGames() %></td>
+        <td><%= match.getFirstPlayerSets() %></td>
     </tr>
     <tr>
-        <td><%= match.getPlayer2Name() %></td>
-        <td><%= calc.getPointsDisplay(match.getPlayer2Points(), match.getPlayer1Points()) %></td>
-        <td><%= match.getPlayer2Games() %></td>
-        <td><%= match.getPlayer2Sets() %></td>
+        <td><%= match.getSecondPlayerName() %></td>
+        <td><%= calc.getPointsDisplay(match.getSecondPlayerPoints(), match.getFirstPlayerPoints()) %></td>
+        <td><%= match.getSecondPlayerGames() %></td>
+        <td><%= match.getSecondPlayerSets() %></td>
     </tr>
 </table>
 
@@ -86,8 +86,8 @@
 <% } else { %>
 <form action="${pageContext.request.contextPath}/match-point" method="post">
     <input type="hidden" name="uuid" value="<%= matchUuid %>">
-    <button type="submit" name="player" value="1" class="button"><%= match.getPlayer1Name() %> wins point</button>
-    <button type="submit" name="player" value="2" class="button"><%= match.getPlayer2Name() %> wins point</button>
+    <button type="submit" name="player" value="1" class="button"><%= match.getFirstPlayerName() %> wins point</button>
+    <button type="submit" name="player" value="2" class="button"><%= match.getSecondPlayerName() %> wins point</button>
 </form>
 <% } %>
 

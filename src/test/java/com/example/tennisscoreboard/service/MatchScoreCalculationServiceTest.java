@@ -1,6 +1,7 @@
 package com.example.tennisscoreboard.service;
 
 import com.example.tennisscoreboard.model.MatchScore;
+import com.example.tennisscoreboard.model.PlayerScorer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,58 +11,57 @@ public class MatchScoreCalculationServiceTest {
     private final MatchScoreCalculationService matchScoreCalculationService = new MatchScoreCalculationService();
 
     /**
-     * Test 1:
      * Player 1 wins a game when the score is 40-0
      */
     @Test
     void testPlayer1WinsGameAfter40_0() {
         MatchScore match = new MatchScore("Player1", "Player2");
-        match.setPlayer1Points(3); // 40
-        match.setPlayer2Points(0);
+        match.setFirstPlayerPoints(3); // 40
+        match.setSecondPlayerPoints(0);
 
-        matchScoreCalculationService.player1WinsPoint(match);
+        matchScoreCalculationService.recordPoint(match, PlayerScorer.PLAYER_1);
 
-        assertEquals(0, match.getPlayer1Points(), "Player1 points should reset after winning game");
-        assertEquals(0, match.getPlayer2Points(), "Player2 points should reset after losing game");
-        assertEquals(1, match.getPlayer1Games(), "Player1 should have +1 game");
+        assertEquals(0, match.getFirstPlayerPoints(), "Player1 points should reset after winning game");
+        assertEquals(0, match.getSecondPlayerPoints(), "Player2 points should reset after losing game");
+        assertEquals(1, match.getFirstPlayerGames(), "Player1 should have +1 game");
     }
 
     /**
-     * Test 2:
-     * Transition from Deuce ➔ Advantage ➔ Game for Player 1
+     * Transition from Deuce to Advantage to Game for Player 1
      */
     @Test
     void testDeuceToAdvantageToWin() {
         MatchScore match = new MatchScore("Player1", "Player2");
-        match.setPlayer1Points(3); // 40
-        match.setPlayer2Points(3); // 40
+        match.setFirstPlayerPoints(3); // 40
+        match.setSecondPlayerPoints(3); // 40
 
-        // Player 1 wins a point ➔ Advantage
-        matchScoreCalculationService.player1WinsPoint(match);
-        assertEquals("Advantage", matchScoreCalculationService.getPointsDisplay(match.getPlayer1Points(), match.getPlayer2Points()),
+        // Player 1 wins a point -> Advantage
+        matchScoreCalculationService.recordPoint(match, PlayerScorer.PLAYER_1);
+        assertEquals("Advantage", matchScoreCalculationService.getPointsDisplay(match.getFirstPlayerPoints(), match.getSecondPlayerPoints()),
                 "Player1 should have Advantage");
 
-        // Player 1 wins another point ➔ Game
-        matchScoreCalculationService.player1WinsPoint(match);
-        assertEquals(0, match.getPlayer1Points(), "Player1 points should reset after winning game");
-        assertEquals(1, match.getPlayer1Games(), "Player1 should have +1 game after winning from Advantage");
+        // Player 1 wins another point -> Game
+        matchScoreCalculationService.recordPoint(match, PlayerScorer.PLAYER_1);
+        assertEquals(0, match.getFirstPlayerPoints(), "Player1 points should reset after winning game");
+        assertEquals(1, match.getFirstPlayerGames(), "Player1 should have +1 game after winning from Advantage");
     }
 
     /**
-     * Test 3:
-     * Tie-break behavior when both players reach 6 games
-     * (Only valid if tie-break logic is implemented)
+     * Behavior when both players reach 6 games (tie-break not implemented, should behave normally)
      */
     @Test
-    void testTieBreakAt6_6() {
+    void testNormalGameAt6_6() {
         MatchScore match = new MatchScore("Player1", "Player2");
-        match.setPlayer1Games(6);
-        match.setPlayer2Games(6);
+        match.setFirstPlayerGames(6);
+        match.setSecondPlayerGames(6);
 
-        // If tie-break logic is supported, Player 1 should start gaining tie-break points
-        matchScoreCalculationService.player1WinsPoint(match);
+        match.setFirstPlayerPoints(3);
+        match.setSecondPlayerPoints(3);
 
-        // Expect Player1 to have 1 point if tie-break is triggered
-        assertEquals(1, match.getPlayer1Points(), "Player1 should have 1 point in tie-break");
+        matchScoreCalculationService.recordPoint(match, PlayerScorer.PLAYER_1); // Advantage
+        matchScoreCalculationService.recordPoint(match, PlayerScorer.PLAYER_1); // Game
+
+        assertEquals(7, match.getFirstPlayerGames(), "Player1 should have 7 games");
+        assertEquals(0, match.getFirstPlayerPoints(), "Points should reset after game");
     }
 }

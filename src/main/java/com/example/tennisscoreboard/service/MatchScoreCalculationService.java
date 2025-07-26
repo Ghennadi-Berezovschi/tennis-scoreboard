@@ -1,128 +1,100 @@
 package com.example.tennisscoreboard.service;
 
+import com.example.tennisscoreboard.exception.InvalidInputException;
 import com.example.tennisscoreboard.model.MatchScore;
+import com.example.tennisscoreboard.model.PlayerScorer;
+import com.example.tennisscoreboard.model.Point;
 
-/**
- * Service for calculating match score logic in a tennis match.
- */
 public class MatchScoreCalculationService {
 
-    /**
-     * Handles logic when Player 1 wins a point.
-     *
-     * @param match the current match score state
-     */
-    public void player1WinsPoint(MatchScore match) {
-        calculatePoint(match, true);
-    }
+    public static final int POINTS_TO_GAME = 4;
+    public static final int GAMES_TO_SET = 6;
+    public static final int SET_WIN_MARGIN = 2;
+    public static final int SETS_TO_MATCH = 2;
 
-    /**
-     * Handles logic when Player 2 wins a point.
-     *
-     * @param match the current match score state
-     */
-    public void player2WinsPoint(MatchScore match) {
-        calculatePoint(match, false);
-    }
-
-    /**
-     * Common logic for updating points when a player wins a point.
-     *
-     * @param match     the current match
-     * @param isPlayer1 true if Player 1 scored the point, false for Player 2
-     */
-    private void calculatePoint(MatchScore match, boolean isPlayer1) {
-        if (match.isFinished()) {
+    public void recordPoint(MatchScore matchScore, PlayerScorer playerScorer) {
+        if (matchScore.isFinished()) {
             return;
         }
 
-        int p1 = match.getPlayer1Points();
-        int p2 = match.getPlayer2Points();
+        int p1 = matchScore.getFirstPlayerPoints();
+        int p2 = matchScore.getSecondPlayerPoints();
 
-        if (isPlayer1) p1++;
-        else p2++;
+        if (playerScorer == PlayerScorer.PLAYER_1) {
+            p1++;
+        } else {
+            p2++;
+        }
 
-        // Game win condition (40 or more points)
-        if (p1 >= 4 || p2 >= 4) {
-            int diff = p1 - p2;
+        if (p1 >= POINTS_TO_GAME || p2 >= POINTS_TO_GAME) {
+            int difference = p1 - p2;
 
-            if (diff >= 2) {
-                // Player 1 wins the game
-                match.setPlayer1Games(match.getPlayer1Games() + 1);
-                p1 = 0;
-                p2 = 0;
-                checkSetWin(match);
-            } else if (diff <= -2) {
-                // Player 2 wins the game
-                match.setPlayer2Games(match.getPlayer2Games() + 1);
-                p1 = 0;
-                p2 = 0;
-                checkSetWin(match);
+            if (difference >= SET_WIN_MARGIN) {
+                matchScore.setFirstPlayerGames(matchScore.getFirstPlayerGames() + 1);
+                resetPoints(matchScore);
+                checkSetWin(matchScore);
+                return;
+            } else if (difference <= -SET_WIN_MARGIN) {
+                matchScore.setSecondPlayerGames(matchScore.getSecondPlayerGames() + 1);
+                resetPoints(matchScore);
+                checkSetWin(matchScore);
+                return;
             }
         }
 
-        match.setPlayer1Points(p1);
-        match.setPlayer2Points(p2);
+        matchScore.setFirstPlayerPoints(p1);
+        matchScore.setSecondPlayerPoints(p2);
     }
 
-    /**
-     * Checks whether a player has won a set or the entire match.
-     *
-     * @param match the current match
-     */
-    private void checkSetWin(MatchScore match) {
-        int p1Games = match.getPlayer1Games();
-        int p2Games = match.getPlayer2Games();
+    private void resetPoints(MatchScore matchScore) {
+        matchScore.setFirstPlayerPoints(0);
+        matchScore.setSecondPlayerPoints(0);
+    }
 
-        // Set win condition: 6+ games with a 2-game lead
-        if (p1Games >= 6 && p1Games - p2Games >= 2) {
-            match.setPlayer1Sets(match.getPlayer1Sets() + 1);
-            match.setPlayer1Games(0);
-            match.setPlayer2Games(0);
-        } else if (p2Games >= 6 && p2Games - p1Games >= 2) {
-            match.setPlayer2Sets(match.getPlayer2Sets() + 1);
-            match.setPlayer1Games(0);
-            match.setPlayer2Games(0);
+    private void checkSetWin(MatchScore match) {
+        int p1Games = match.getFirstPlayerGames();
+        int p2Games = match.getSecondPlayerGames();
+
+        if (p1Games >= GAMES_TO_SET && p1Games - p2Games >= SET_WIN_MARGIN) {
+            match.setFirstPlayerSets(match.getFirstPlayerSets() + 1);
+            match.setFirstPlayerGames(0);
+            match.setSecondPlayerGames(0);
+        } else if (p2Games >= GAMES_TO_SET && p2Games - p1Games >= SET_WIN_MARGIN) {
+            match.setSecondPlayerSets(match.getSecondPlayerSets() + 1);
+            match.setFirstPlayerGames(0);
+            match.setSecondPlayerGames(0);
         }
 
-        // Match win condition: best of 3 sets
-        if (match.getPlayer1Sets() == 2 || match.getPlayer2Sets() == 2) {
+        if (match.getFirstPlayerSets() == SETS_TO_MATCH || match.getSecondPlayerSets() == SETS_TO_MATCH) {
             match.setFinished(true);
         }
     }
 
-    /**
-     * Converts raw point values to display-friendly tennis scores.
-     *
-     * @param points         current player's points
-     * @param opponentPoints opponent's points
-     * @return formatted string: 0, 15, 30, 40, Deuce, Advantage, etc.
-     */
     public String getPointsDisplay(int points, int opponentPoints) {
-
-        // Normal scoring (0–40)
         if (points <= 3 && opponentPoints <= 3 && !(points == 3 && opponentPoints == 3)) {
-            switch (points) {
-                case 0: return "0";
-                case 1: return "15";
-                case 2: return "30";
-                case 3: return "40";
-            }
+            return Point.fromInt(points).getDisplay();
         }
 
-        // Deuce and Advantage logic
         if (points >= 3 && opponentPoints >= 3) {
             if (points == opponentPoints) {
                 return "Deuce";
             } else if (points - opponentPoints == 1) {
                 return "Advantage";
             } else if (points - opponentPoints == -1) {
-                return ""; // Opponent has Advantage
-            } else if (points - opponentPoints >= 2) {
+                return "";
+            } else if (points - opponentPoints >= SET_WIN_MARGIN) {
                 return "Game";
             }
         }
 
         return "";
+    }
+
+    public void processPlayerPoint(MatchScore match, String playerParam) {
+        switch (playerParam) {
+            case "1" -> recordPoint(match, PlayerScorer.PLAYER_1);
+            case "2" -> recordPoint(match, PlayerScorer.PLAYER_2);
+            default -> throw new InvalidInputException("Invalid player parameter: must be 1 or 2.");
+        }
     }
 }
